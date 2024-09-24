@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+    integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+  <title>Meteorológia</title>
+
+  <style>
+
+body{
+    font-family: 'Arvo', serif;
+    background-image: url();
+    background-size: cover;
+}
+
+.city{
+    font-size: 32px;
+}
+
+.date {
+    font-size: 16px;
+}
+
+.container-temp{
+    display: flex;
+    justify-content: center;
+    background-color: rgba(244, 208, 63, 0.2);
+    box-shadow: 5px 6px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+
+    font-size: 100px;
+    font-weight: 900;
+    text-shadow: 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.weather{
+    font-size: 32px;
+}
+
+.low-high {
+    font-size: 22px;
+}
+
+  </style>
+
+</head>
+<body>
+  <div class="container-fluid p-0 container-sm d-flex justify-content-center">
+
+    <div class="card text-center shadow-lg" style="width: 26rem;">
+
+      <div class="card-header bg-white text-dark font-weight-bold">
+        TEMPO E TEMPERATURA
+      </div>
+
+      <div class="card-body">
+        <div class="city">Cidade Exemplo, BR</div>
+        <div class="date">Sexta, 16 Setembro 2024</div>
+        <div class="container-img">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0jh-tGdrLZprknNu6T5ImIU2lYMdHWoeMIg&s" style="width: 50px;">
+        </div>
+        <div class="container-temp mx-4 my-3">
+          <div>22</div>
+          <span>°c</span>
+        </div>
+        <div class="weather py-2">Nublado</div>
+        <div class="low-high">22°c / 23°c</div>
+      </div>
+
+      <div class="card-footer bg-white">
+        <div class="input-group ">
+          <input type="text" class="form-control bg-light" placeholder="digite o nome da cidade" aria-label="Recipient's username" aria-describedby="button-addon2">
+          <div class="input-group-append">
+            <button class="btn btn-outline-warning text-dark" type="button" id="button-addon2">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+
+const api = {
+    key: "083c00f68c5a9e5bc827aa586dde3de4",
+    base: "https://api.openweathermap.org/data/2.5/",
+    lang: "pt_br",
+    units: "metric"
+}
+
+const city = document.querySelector('.city')
+const date = document.querySelector('.date');
+const container_img = document.querySelector('.container-img');
+const container_temp = document.querySelector('.container-temp');
+const temp_number = document.querySelector('.container-temp div');
+const temp_unit = document.querySelector('.container-temp span');
+const weather_t = document.querySelector('.weather');
+const search_input = document.querySelector('.form-control');
+const search_button = document.querySelector('.btn');
+const low_high = document.querySelector('.low-high');
+
+window.addEventListener('load', () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setPosition, showError);
+    }
+    else {
+        alert('navegador não suporta geolozalicação');
+    }
+    function setPosition(position) {
+        console.log(position)
+        let lat = position.coords.latitude;
+        let long = position.coords.longitude;
+        coordResults(lat, long);
+    }
+    function showError(error) {
+        alert(`erro: ${error.message}`);
+    }
+})
+
+function coordResults(lat, long) {
+    fetch(`${api.base}weather?lat=${lat}&lon=${long}&lang=${api.lang}&units=${api.units}&APPID=${api.key}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`http error: status ${response.status}`)
+            }
+            return response.json();
+        })
+        .catch(error => {
+            alert(error.message)
+        })
+        .then(response => {
+            displayResults(response)
+        });
+}
+
+search_button.addEventListener('click', function() {
+    searchResults(search_input.value)
+})
+
+search_input.addEventListener('keypress', enter)
+function enter(event) {
+    key = event.keyCode
+    if (key === 13) {
+        searchResults(search_input.value)
+    }
+}
+
+function searchResults(city) {
+    fetch(`${api.base}weather?q=${city}&lang=${api.lang}&units=${api.units}&APPID=${api.key}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`http error: status ${response.status}`)
+            }
+            return response.json();
+        })
+        .catch(error => {
+            alert(error.message)
+        })
+        .then(response => {
+            displayResults(response)
+        });
+}
+
+function displayResults(weather) {
+    console.log(weather)
+
+    city.innerText = `${weather.name}, ${weather.sys.country}`;
+
+    let now = new Date();
+    date.innerText = dateBuilder(now);
+
+    let iconName = weather.weather[0].icon;
+    container_img.innerHTML = `<img src="./icons/${iconName}.png">`;
+
+    let temperature = `${Math.round(weather.main.temp)}`
+    temp_number.innerHTML = temperature;
+    temp_unit.innerHTML = `°c`;
+
+    weather_tempo = weather.weather[0].description;
+    weather_t.innerText = capitalizeFirstLetter(weather_tempo)
+
+    low_high.innerText = `${Math.round(weather.main.temp_min)}°c / ${Math.round(weather.main.temp_max)}°c`;
+}
+
+function dateBuilder(d) {
+    let days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+    let months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julio", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+    let day = days[d.getDay()];
+    let date = d.getDate();
+    let month = months[d.getMonth()];
+    let year = d.getFullYear();
+
+    return `${day}, ${date} ${month} ${year}`;
+}
+
+container_temp.addEventListener('click', changeTemp)
+function changeTemp() {
+    temp_number_now = temp_number.innerHTML
+
+    if (temp_unit.innerHTML === "°c") {
+        let f = (temp_number_now * 1.8) + 32
+        temp_unit.innerHTML = "°f"
+        temp_number.innerHTML = Math.round(f)
+    }
+    else {
+        let c = (temp_number_now - 32) / 1.8
+        temp_unit.innerHTML = "°c"
+        temp_number.innerHTML = Math.round(c)
+    }
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+  </script>
+</body>
+
+</html>

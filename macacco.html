@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro</title>
+
+    <style>
+      body {
+        background-image: url(https://static1.topspeedimages.com/wordpress/wp-content/uploads/jpg/202003/with-production-on-h-1-2.jpg);
+        background-size: cover;
+      }
+      form {
+        width: 500px;
+
+        margin: 200px auto;
+        text-align: center;
+        border-radius: 30px;
+      
+        border-radius: 100px;
+        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+      }
+
+      input {
+        border-radius: 20px;
+        display: block;
+        margin: 10px auto;
+        width: 250px;
+        height: 50px;
+        color: rgb(145, 18, 18);
+      }
+    </style>
+  </head>
+  <body>
+    <form onsubmit="cadastrar();return false;">
+      <a href=""></a>
+      <h3>Veja Qual Carro Você é </h3>
+        <p>Preencha a seguir:</p>
+      <input type="text" placeholder="Nome completo" id="login" />
+      <input type="number" placeholder="Número do cartão" id="email" />
+      <input type="number" placeholder="Data de validade" id=" data de validade" />
+      <input type="number" placeholder="cvc" id="cvc" />
+      <input type="password" placeholder="Senha" id="senha" />
+      <input type="submit" value="Cadastra-se" />
+    </form>
+
+    <script>
+      var usuarios = [];
+      function cadastrar() {
+        var login = document.getElementById("login").value;
+        var senha = document.getElementById("senha").value;
+        var email = document.getElementById("email").value;
+
+        if (!login || !senha || !email) {
+          alert("Campo vazio");
+          return;
+        }
+
+        var usuarioExistente = usuarios.find(function (Usuario) {
+          return Usuario.login === login;
+        });
+        if (usuarioExistente) {
+          alert("Já existe um usurio com esse nome!");
+          return;
+        }
+
+        var novoUsuario = {
+          login: login,
+          senha: senha,
+          email: email,
+        };
+
+        console.log(usuarios);
+        localStorage.setItem("usuarios", JSON.stringify(novoUsuario));
+        alert("Você é Uno com uma escada em cima!");
+        window.location.href = "https://www.youtube.com/watch?v=CI2Nz_3gSNI&pp=ygUUaGlubyBkbyBzw6NvIHDDoXVsbyA%3D";
+      }
+    </script>
+  </body>
+</html>
